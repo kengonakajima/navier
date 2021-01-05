@@ -1,6 +1,14 @@
-#define IX(i,j) ((i)+(N+2)*(j))
+//#define IX(i,j) ((i)+(N+2)*(j))
+extern int N;
+
+int IX(int i, int j) {
+    if(i==N+2)i=0; else if(i==-1) i=N+1; // outside access for x axis
+    if(j==N+2)j=0; else if(j==-1) j=N+1; // outside access for y axis
+    return i + (N+2)*j;
+}
 #define SWAP(x0,x) {float * tmp=x0;x0=x;x=tmp;}
-#define FOR_EACH_CELL for ( i=1 ; i<=N ; i++ ) { for ( j=1 ; j<=N ; j++ ) {
+//#define FOR_EACH_CELL for ( i=1 ; i<=N ; i++ ) { for ( j=1 ; j<=N ; j++ ) {
+#define FOR_EACH_CELL for ( i=0 ; i<=N+1 ; i++ ) { for ( j=0 ; j<=N ; j++ ) {
 #define END_FOR }}
 
 void add_source ( int N, float * x, float * s, float dt )
@@ -9,8 +17,12 @@ void add_source ( int N, float * x, float * s, float dt )
 	for ( i=0 ; i<size ; i++ ) x[i] += dt*s[i];
 }
 
+#define LOOPED 1
+
 void set_bnd ( int N, int b, float * x )
 {
+    return; // no boundary
+    
 	int i;
 
 	for ( i=1 ; i<=N ; i++ ) {
@@ -24,6 +36,7 @@ void set_bnd ( int N, int b, float * x )
 	x[IX(N+1,0  )] = 0.5f*(x[IX(N,0  )]+x[IX(N+1,1)]);
 	x[IX(N+1,N+1)] = 0.5f*(x[IX(N,N+1)]+x[IX(N+1,N)]);
 }
+
 
 void lin_solve ( int N, int b, float * x, float * x0, float a, float c )
 {

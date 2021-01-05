@@ -19,12 +19,12 @@
 #include <time.h>
 #include <GLUT/glut.h>
 
-static const int RETINA=2;
+static const int RETINA=1;
 
 
 /* macros */
 
-#define IX(i,j) ((i)+(N+2)*(j))
+extern int IX(int i,int j);
 
 /* external definitions (from solver.c) */
 
@@ -33,7 +33,7 @@ extern void vel_step ( int N, float * u, float * v, float * u0, float * v0, floa
 
 /* global variables */
 
-static int N;
+int N;
 static float dt, diff, visc;
 static float force, source;
 static int dvel;
@@ -120,7 +120,6 @@ static void post_display ( void )
 
 static void draw_velocity ( void )   
 {
-        fprintf(stderr,"dv\n");
 	int i, j;
 	float x, y, h;
 
@@ -248,14 +247,11 @@ static void mouse_func ( int button, int state, int x, int y )
 {
 	omx = mx = x/RETINA;
 	omx = my = y/RETINA;
-
-    fprintf(stderr, "mouse_func %d %d %d %d\n",button,state,x,y);
 	mouse_down[button] = state == GLUT_DOWN;
 }
 
 static void motion_func ( int x, int y )
 {
-    fprintf(stderr, "motion_func %d %d\n",x,y);
 	mx = x/RETINA;
 	my = y/RETINA;
 }
@@ -275,6 +271,10 @@ static void idle_func ( void )
 	vel_step ( N, u, v, u_prev, v_prev, visc, dt );
 	dens_step ( N, dens, dens_prev, u, v, diff, dt );
 
+    //    fprintf(stderr,"d:%f u:%f v:%f\n", dens[IX(N/2,N/2)], u[IX(N/2,N/2)], v[IX(N/2,N/2)]);
+    //    fprintf(stderr,"d:%f u:%f v:%f\n", dens[IX(N-1,N/2)], u[IX(N-1,N/2)], v[IX(N-1,N/2)]);    
+    fprintf(stderr,"u:%f d:%f   u:%f d:%f\n", u[IX(0,N/2)], dens[IX(0,N/2)], u[IX(N+1,N/2)],dens[IX(N+1,N/2)]);
+    
 	glutSetWindow ( win_id );
 	glutPostRedisplay ();
 }
