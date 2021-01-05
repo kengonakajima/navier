@@ -19,6 +19,9 @@
 #include <time.h>
 #include <GLUT/glut.h>
 
+static const int RETINA=2;
+
+
 /* macros */
 
 #define IX(i,j) ((i)+(N+2)*(j))
@@ -44,7 +47,7 @@ static int mouse_down[3];
 static int omx, omy, mx, my;
 
 static int frames = 0;
-static int no_display = 1;
+static int no_display = 0;
 static time_t start_time = 0;
 
 /*
@@ -101,10 +104,11 @@ static int allocate_data ( void )
 
 static void pre_display ( void )
 {
-	glViewport ( 0, 0, win_x, win_y );
+	glViewport ( 0, 0, win_x*RETINA, win_y*RETINA );
 	glMatrixMode ( GL_PROJECTION );
 	glLoadIdentity ();
-	gluOrtho2D ( 0.0, 1.0, 0.0, 1.0 );
+    //	gluOrtho2D ( 0.0, 1.0, 0.0, 1.0 );
+    gluOrtho2D ( 0, 1.0, 0.0, 1.0 );    
 	glClearColor ( 0.0f, 0.0f, 0.0f, 1.0f );
 	glClear ( GL_COLOR_BUFFER_BIT );
 }
@@ -114,8 +118,9 @@ static void post_display ( void )
 	glutSwapBuffers ();
 }
 
-static void draw_velocity ( void )
+static void draw_velocity ( void )   
 {
+        fprintf(stderr,"dv\n");
 	int i, j;
 	float x, y, h;
 
@@ -149,9 +154,9 @@ static void draw_density ( void )
 	glBegin ( GL_QUADS );
 
 		for ( i=0 ; i<=N ; i++ ) {
-			x = (i-0.5f)*h;
+			x = (i-0.5f)*h * RETINA;
 			for ( j=0 ; j<=N ; j++ ) {
-				y = (j-0.5f)*h;
+				y = (j-0.5f)*h * RETINA;
 
 				d00 = dens[IX(i,j)];
 				d01 = dens[IX(i,j+1)];
@@ -159,9 +164,9 @@ static void draw_density ( void )
 				d11 = dens[IX(i+1,j+1)];
 
 				glColor3f ( d00, d00, d00 ); glVertex2f ( x, y );
-				glColor3f ( d10, d10, d10 ); glVertex2f ( x+h, y );
-				glColor3f ( d11, d11, d11 ); glVertex2f ( x+h, y+h );
-				glColor3f ( d01, d01, d01 ); glVertex2f ( x, y+h );
+				glColor3f ( d10, d10, d10 ); glVertex2f ( x+h*RETINA, y );
+				glColor3f ( d11, d11, d11 ); glVertex2f ( x+h*RETINA, y+h*RETINA );
+				glColor3f ( d01, d01, d01 ); glVertex2f ( x, y+h*RETINA );
 			}
 		}
 
@@ -185,7 +190,7 @@ static void get_from_UI ( float * d, float * u, float * v )
 	if ( !mouse_down[0] && !mouse_down[2] ) return;
 
 	i = (int)((       mx /(float)win_x)*N+1);
-	j = (int)(((win_y-my)/(float)win_y)*N+1);
+	j = (int)(((win_y/RETINA-my)/(float)(win_y))*N+1);
 
 	if ( i<1 || i>N || j<1 || j>N ) return;
 
@@ -241,16 +246,18 @@ static void key_func ( unsigned char key, int x, int y )
 
 static void mouse_func ( int button, int state, int x, int y )
 {
-	omx = mx = x;
-	omx = my = y;
+	omx = mx = x/RETINA;
+	omx = my = y/RETINA;
 
+    fprintf(stderr, "mouse_func %d %d %d %d\n",button,state,x,y);
 	mouse_down[button] = state == GLUT_DOWN;
 }
 
 static void motion_func ( int x, int y )
 {
-	mx = x;
-	my = y;
+    fprintf(stderr, "motion_func %d %d\n",x,y);
+	mx = x/RETINA;
+	my = y/RETINA;
 }
 
 static void reshape_func ( int width, int height )
@@ -280,7 +287,6 @@ static void display_func ( void )
   frames++;
   if(!no_display) {
 	pre_display ();
-
 		if ( dvel ) draw_velocity ();
 		else		draw_density ();
 
@@ -343,7 +349,7 @@ int main ( int argc, char ** argv )
 	}
 
 	if ( argc == 1 ) {
-		N = 64;
+		N = 128;
 		dt = 0.1f;
 		diff = 0.0f;
 		visc = 0.0f;
