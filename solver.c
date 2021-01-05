@@ -2,8 +2,6 @@
 extern int N;
 
 int IX(int i, int j) {
-    if(i==N+2)i=0; else if(i==-1) i=N+1; // outside access for x axis
-    if(j==N+2)j=0; else if(j==-1) j=N+1; // outside access for y axis
     return i + (N+2)*j;
 }
 #define SWAP(x0,x) {float * tmp=x0;x0=x;x=tmp;}
@@ -21,8 +19,6 @@ void add_source ( int N, float * x, float * s, float dt )
 
 void set_bnd ( int N, int b, float * x )
 {
-    return; // no boundary
-    
 	int i;
 
 	for ( i=1 ; i<=N ; i++ ) {

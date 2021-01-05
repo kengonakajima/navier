@@ -265,9 +265,14 @@ static void reshape_func ( int width, int height )
 	win_y = height;
 }
 
+static void constantForce(float *u, float *v) {
+    u[IX(N/2,1)]=10;
+    u[IX(N/2,N)]=-10;
+}
 static void idle_func ( void )
 {
 	get_from_UI ( dens_prev, u_prev, v_prev );
+    constantForce( u_prev, v_prev);
 	vel_step ( N, u, v, u_prev, v_prev, visc, dt );
 	dens_step ( N, dens, dens_prev, u, v, diff, dt );
 
